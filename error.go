@@ -1,7 +1,7 @@
-package util
+package errors
 
 import (
-	"errors"
+	nerrors "errors"
 	"net/http"
 )
 
@@ -40,13 +40,17 @@ func (e *httpError) Error() string {
 	return e.err.Error()
 }
 
+func (e *httpError) Unwrap() error {
+	return e.err
+}
+
 func (e *httpError) HTTPCode() int {
 	return e.httpCode
 }
 
 func WithHTTPCode(code int, err error) HTTPError {
 	if err == nil {
-		panic(errors.New("err is nil"))
+		panic(nerrors.New("err is nil"))
 	}
 	return &httpError{err: err, httpCode: code}
 }
@@ -62,7 +66,7 @@ func Wrap(err error, msg string) error {
 			Message: msg + ": " + he.Error(),
 		}
 	}
-	return errors.New(msg + ": " + err.Error())
+	return nerrors.New(msg + ": " + err.Error())
 }
 
 func ToError(err error, defaultCode int) *Error {
@@ -81,4 +85,12 @@ func ToError(err error, defaultCode int) *Error {
 		Code:    defaultCode,
 		Message: err.Error(),
 	}
+}
+
+func New(msg string) error {
+	return nerrors.New(msg)
+}
+
+func NewHTTPError(code int, msg string) HTTPError {
+	return &Error{Code: code, Message: msg}
 }
