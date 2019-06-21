@@ -94,3 +94,8 @@ func New(msg string) error {
 func NewHTTPError(code int, msg string) HTTPError {
 	return &Error{Code: code, Message: msg}
 }
+
+func IsUnauthorizedError(err error) bool {
+	re, ok := err.(HTTPError)
+	return ok && re.HTTPCode() == http.StatusUnauthorized
+}
