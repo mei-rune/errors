@@ -99,3 +99,7 @@ func IsUnauthorizedError(err error) bool {
 	re, ok := err.(HTTPError)
 	return ok && re.HTTPCode() == http.StatusUnauthorized
 }
+
+func BadArgument(msg string) HTTPError {
+	return NewHTTPError(http.StatusBadRequest, msg)
+}
