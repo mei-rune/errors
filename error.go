@@ -3,6 +3,7 @@ package errors
 import (
 	nerrors "errors"
 	"net/http"
+	"strings"
 )
 
 type HTTPError interface {
@@ -103,3 +104,18 @@ func IsUnauthorizedError(err error) bool {
 func BadArgument(msg string) HTTPError {
 	return NewHTTPError(http.StatusBadRequest, msg)
 }
+
+const ErrCodeMultipleError = 562
+
+func Concat(list ...Error) *Error {
+	var sb strings.Builder
+	sb.WriteString("throw mult errors: ")
+	for _, a := range list {
+		sb.WriteString("\r\n  ")
+		sb.WriteString(a.Error())
+	}
+
+	return &Error{Code: ErrCodeMultipleError, Message: sb.String()}
+}
+
+var ErrArray = Concat
