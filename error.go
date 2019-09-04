@@ -2,7 +2,6 @@ package errors
 
 import (
 	nerrors "errors"
-	"net/http"
 	"strings"
 )
 
@@ -12,48 +11,48 @@ type HTTPError interface {
 	HTTPCode() int
 }
 
+// ValidationError simple struct to store the Message & Key of a validation error
+type ValidationError struct {
+	Code    string `json:"code,omitempty"`
+	Message string `json:"message,omitempty"`
+}
+
 type Error struct {
-	Code    int    `json:"code,omitempty"`
-	Message string `json:"message"`
+	Code      int                        `json:"code,omitempty"`
+	Message   string                     `json:"message"`
+	Details   string                     `json:"details"`
+	Cause     error                      `json:"cause,omitempty"`
+	Fields    map[string]ValidationError `json:"fields,omitempty"`
+	Internals []Error                    `json:"internals,omitempty"`
 }
 
-func (e *Error) Error() string {
-	return e.Message
-}
-
-func (e *Error) HTTPCode() int {
-	return e.Code
-}
-
-func ErrBadArgument(paramName string, value interface{}, err ...error) error {
-	if len(err) == 0 {
-		return &Error{Code: http.StatusBadRequest, Message: "param '" + paramName + "' is invalid"}
+func (err *Error) Error() string {
+	if err.HTTPCode() == ErrMultipleError.HTTPCode() {
+		var buffer strings.Builder
+		if err.Message != "" {
+			buffer.WriteString(err.Message)
+			if !strings.HasSuffix(err.Message, ":") {
+				buffer.WriteString(":")
+			}
+		} else {
+			buffer.WriteString("发生多个错误:")
+		}
+		for _, e := range err.Internals {
+			buffer.WriteString("\r\n  ")
+			buffer.WriteString(e.Error())
+		}
+		return buffer.String()
 	}
-	return &Error{Code: http.StatusBadRequest, Message: "param '" + paramName + "' is invalid - " + err[0].Error()}
+
+	return err.Message
 }
 
-type httpError struct {
-	err      error
-	httpCode int
+func (err *Error) ErrorCode() int {
+	return err.Code
 }
 
-func (e *httpError) Error() string {
-	return e.err.Error()
-}
-
-func (e *httpError) Unwrap() error {
-	return e.err
-}
-
-func (e *httpError) HTTPCode() int {
-	return e.httpCode
-}
-
-func WithHTTPCode(code int, err error) HTTPError {
-	if err == nil {
-		panic(nerrors.New("err is nil"))
-	}
-	return &httpError{err: err, httpCode: code}
+func (err *Error) HTTPCode() int {
+	return ToHttpCode(err.Code)
 }
 
 func Wrap(err error, msg string) error {
@@ -70,52 +69,6 @@ func Wrap(err error, msg string) error {
 	return nerrors.New(msg + ": " + err.Error())
 }
 
-func ToError(err error, defaultCode int) *Error {
-	if he, ok := err.(*Error); ok {
-		return he
-	}
-
-	if he, ok := err.(HTTPError); ok {
-		return &Error{
-			Code:    he.HTTPCode(),
-			Message: he.Error(),
-		}
-	}
-
-	return &Error{
-		Code:    defaultCode,
-		Message: err.Error(),
-	}
-}
-
 func New(msg string) error {
 	return nerrors.New(msg)
 }
-
-func NewHTTPError(code int, msg string) HTTPError {
-	return &Error{Code: code, Message: msg}
-}
-
-func IsUnauthorizedError(err error) bool {
-	re, ok := err.(HTTPError)
-	return ok && re.HTTPCode() == http.StatusUnauthorized
-}
-
-func BadArgument(msg string) HTTPError {
-	return NewHTTPError(http.StatusBadRequest, msg)
-}
-
-const ErrCodeMultipleError = 562
-
-func Concat(list ...Error) *Error {
-	var sb strings.Builder
-	sb.WriteString("throw mult errors: ")
-	for _, a := range list {
-		sb.WriteString("\r\n  ")
-		sb.WriteString(a.Error())
-	}
-
-	return &Error{Code: ErrCodeMultipleError, Message: sb.String()}
-}
-
-var ErrArray = Concat
