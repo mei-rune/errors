@@ -2,6 +2,7 @@ package errors
 
 import (
 	"database/sql"
+	"fmt"
 	"net/http"
 	"strings"
 	"unicode"
@@ -32,6 +33,20 @@ func BadArgument(msg string) *Error {
 	return NewError(http.StatusBadRequest, msg)
 }
 
+//  NotFound 创建一个 ErrNotFound
+func ErrNotFoundWith(typeName string, id interface{}) *Error {
+	return NewError(http.StatusNotFound, "record with type is '"+typeName+"' and id is '"+fmt.Sprint(id)+"' isn't found")
+}
+
+//  NotFound 创建一个 ErrNotFound
+func ErrNotFoundWithMessage(msg string) *Error {
+	if msg == "" {
+		return NewError(http.StatusNotFound, "not found")
+	}
+
+	return NewError(http.StatusNotFound, msg)
+}
+
 func IsUnauthorizedError(err error) bool {
 	re, ok := err.(HTTPError)
 	return ok && re.HTTPCode() == http.StatusUnauthorized
@@ -48,6 +63,8 @@ func ToError(err error, defaultCode int) *Error {
 	}
 	if he, ok := err.(HTTPError); ok {
 		result.Code = he.HTTPCode()
+	} else if err == sql.ErrNoRows {
+		result.Code = http.StatusNotFound
 	}
 
 	for err != nil {
