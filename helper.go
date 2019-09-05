@@ -39,7 +39,7 @@ func ErrNotFoundWith(typeName string, id interface{}) *Error {
 }
 
 //  NotFound 创建一个 ErrNotFound
-func ErrNotFoundWithMessage(msg string) *Error {
+func ErrNotFoundWithText(msg string) *Error {
 	if msg == "" {
 		return NewError(http.StatusNotFound, "not found")
 	}
