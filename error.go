@@ -21,7 +21,7 @@ type Error struct {
 	Code      int                        `json:"code,omitempty"`
 	Message   string                     `json:"message"`
 	Details   string                     `json:"details"`
-	Cause     error                      `json:"cause,omitempty"`
+	Cause     error                      `json:"-"`
 	Fields    map[string]ValidationError `json:"fields,omitempty"`
 	Internals []Error                    `json:"internals,omitempty"`
 }
