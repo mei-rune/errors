@@ -39,6 +39,9 @@ func ErrArray(list ...interface{}) error {
 					return values[0].(error)
 				}
 			}
+			if len(values) == 0 {
+				break
+			}
 
 			if errList == nil {
 				errList = make([]Error, 0, len(values))
@@ -55,6 +58,10 @@ func ErrArray(list ...interface{}) error {
 					return values[0]
 				}
 			}
+			if len(values) == 0 {
+				break
+			}
+
 			if errList == nil {
 				errList = make([]Error, 0, len(values))
 			}
@@ -69,6 +76,9 @@ func ErrArray(list ...interface{}) error {
 				if len(values) == 1 {
 					return values[0]
 				}
+			}
+			if len(values) == 0 {
+				break
 			}
 			if errList == nil {
 				errList = make([]Error, 0, len(values))
@@ -85,6 +95,9 @@ func ErrArray(list ...interface{}) error {
 					return &values[0]
 				}
 			}
+			if len(values) == 0 {
+				break
+			}
 			if errList == nil {
 				errList = values
 			} else {
@@ -98,6 +111,9 @@ func ErrArray(list ...interface{}) error {
 				if len(values) == 1 {
 					return values[0]
 				}
+			}
+			if len(values) == 0 {
+				break
 			}
 			if errList == nil {
 				errList = make([]Error, 0, len(values))
