@@ -20,7 +20,123 @@ func Concat(list ...Error) *Error {
 	return &Error{Code: ErrMultipleError.HTTPCode(), Internals: list}
 }
 
-var ErrArray = Concat
+func ErrArray(list ...interface{}) error {
+	var errList []Error
+
+	if len(list) == 0 {
+		return nil
+	}
+
+	var message string
+	for vidx, value := range list {
+		switch values := value.(type) {
+		case []interface{}:
+			if len(list) == 1 {
+				if len(values) == 0 {
+					return nil
+				}
+				if len(values) == 1 {
+					return values[0].(error)
+				}
+			}
+
+			if errList == nil {
+				errList = make([]Error, 0, len(values))
+			}
+			for idx := range values {
+				errList = append(errList, *ToError(values[idx].(error)))
+			}
+		case []error:
+			if len(list) == 1 {
+				if len(values) == 0 {
+					return nil
+				}
+				if len(values) == 1 {
+					return values[0]
+				}
+			}
+			if errList == nil {
+				errList = make([]Error, 0, len(values))
+			}
+			for idx := range values {
+				errList = append(errList, *ToError(values[idx]))
+			}
+		case []HTTPError:
+			if len(list) == 1 {
+				if len(values) == 0 {
+					return nil
+				}
+				if len(values) == 1 {
+					return values[0]
+				}
+			}
+			if errList == nil {
+				errList = make([]Error, 0, len(values))
+			}
+			for idx := range values {
+				errList = append(errList, *ToError(values[idx]))
+			}
+		case []Error:
+			if len(list) == 1 {
+				if len(values) == 0 {
+					return nil
+				}
+				if len(values) == 1 {
+					return &values[0]
+				}
+			}
+			if errList == nil {
+				errList = values
+			} else {
+				errList = append(errList, values...)
+			}
+		case []*Error:
+			if len(list) == 1 {
+				if len(values) == 0 {
+					return nil
+				}
+				if len(values) == 1 {
+					return values[0]
+				}
+			}
+			if errList == nil {
+				errList = make([]Error, 0, len(values))
+			}
+
+			for _, err := range values {
+				errList = append(errList, *err)
+			}
+		default:
+			err, ok := value.(error)
+			if ok {
+				if len(list) == 1 {
+					return err
+				}
+				if errList == nil {
+					errList = make([]Error, 0, len(list))
+				}
+				errList = append(errList, *ToError(err))
+				break
+			}
+
+			msg, ok := value.(string)
+			if ok {
+				message = msg
+				break
+			}
+			panic(fmt.Errorf("list %i isnot error - %T", vidx, value))
+		}
+	}
+
+	if len(errList) == 0 {
+		return nil
+	}
+
+	if len(errList) == 1 {
+		return &errList[0]
+	}
+	return &Error{Code: ErrMultipleError.HTTPCode(), Message: message, Internals: errList}
+}
 
 func ErrBadArgument(paramName string, value interface{}, err ...error) HTTPError {
 	if len(err) == 0 {
@@ -52,13 +168,18 @@ func IsUnauthorizedError(err error) bool {
 	return ok && re.HTTPCode() == http.StatusUnauthorized
 }
 
-func ToError(err error, defaultCode int) *Error {
+func ToError(err error, defaultCode ...int) *Error {
 	if he, ok := err.(*Error); ok {
 		return he
 	}
 
+	errCode := http.StatusInternalServerError
+	if len(defaultCode) > 0 {
+		errCode = defaultCode[0]
+	}
+
 	result := &Error{
-		Code:    defaultCode,
+		Code:    errCode,
 		Message: err.Error(),
 	}
 	if he, ok := err.(HTTPError); ok {
