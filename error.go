@@ -68,17 +68,34 @@ func Wrap(err error, msg string) error {
 	}
 	return errwrap{err: err, msg: msg}
 }
+func WrapWithSuffix(err error, msg string) error {
+	if he, ok := err.(*Error); ok {
+		he.Message = he.Message + ": " + msg
+		return he
+	}
+	if he, ok := err.(HTTPError); ok {
+		return &Error{
+			Code:    he.HTTPCode(),
+			Message: he.Error() + ": " + msg,
+		}
+	}
+	return errwrap{err: err, msg: msg, isSuffix: true}
+}
 
 func New(msg string) error {
 	return nerrors.New(msg)
 }
 
 type errwrap struct {
-	err error
-	msg string
+	err      error
+	msg      string
+	isSuffix bool
 }
 
 func (e errwrap) Error() string {
+	if e.isSuffix {
+		return e.err.Error() + ": " + e.msg
+	}
 	return e.msg + ": " + e.err.Error()
 }
 
