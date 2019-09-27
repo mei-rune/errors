@@ -140,7 +140,7 @@ func ErrArray(list ...interface{}) error {
 				message = msg
 				break
 			}
-			panic(fmt.Errorf("list %i isnot error - %T", vidx, value))
+			panic(fmt.Errorf("list %d isnot error - %T", vidx, value))
 		}
 	}
 

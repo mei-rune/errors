@@ -66,9 +66,22 @@ func Wrap(err error, msg string) error {
 			Message: msg + ": " + he.Error(),
 		}
 	}
-	return nerrors.New(msg + ": " + err.Error())
+	return errwrap{err: err, msg: msg}
 }
 
 func New(msg string) error {
 	return nerrors.New(msg)
+}
+
+type errwrap struct {
+	err error
+	msg string
+}
+
+func (e errwrap) Error() string {
+	return e.msg + ": " + e.err.Error()
+}
+
+func (e errwrap) Unwrap() error {
+	return e.err
 }
