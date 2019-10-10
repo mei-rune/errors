@@ -55,7 +55,12 @@ func (err *Error) HTTPCode() int {
 	return ToHttpCode(err.Code)
 }
 
+var errMissing = nerrors.New("err is nil")
+
 func Wrap(err error, msg string) error {
+	if err == nil {
+		panic(errMissing)
+	}
 	if he, ok := err.(*Error); ok {
 		he.Message = msg + ": " + he.Message
 		return he
@@ -69,6 +74,10 @@ func Wrap(err error, msg string) error {
 	return errwrap{err: err, msg: msg}
 }
 func WrapWithSuffix(err error, msg string) error {
+	if err == nil {
+		panic(errMissing)
+	}
+
 	if he, ok := err.(*Error); ok {
 		he.Message = he.Message + ": " + msg
 		return he
