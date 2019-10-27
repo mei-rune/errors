@@ -223,6 +223,18 @@ func AsHTTPError(err error) (HTTPError, bool) {
 	return he, ok
 }
 
+func HTTPCode(err error, statusCode ...int) int {
+	code := http.StatusInternalServerError
+	if len(statusCode) > 0 {
+		code = statusCode[0]
+	}
+	he, ok := err.(HTTPError)
+	if ok {
+		code = he.HTTPCode()
+	}
+	return code
+}
+
 func IsPendingError(e error) bool {
 	if re, ok := e.(HTTPError); ok {
 		return re.HTTPCode() == ErrPending.HTTPCode()
