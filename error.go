@@ -47,6 +47,10 @@ func (err *Error) Error() string {
 	return err.Message
 }
 
+func (err *Error) Unwrap() error {
+	return err.Cause
+}
+
 func (err *Error) ErrorCode() int {
 	return err.Code
 }
@@ -110,4 +114,16 @@ func (e errwrap) Error() string {
 
 func (e errwrap) Unwrap() error {
 	return e.err
+}
+
+func Unwrap(err error) error {
+	e, ok := err.(interface {
+		Unwrap() error
+	})
+	if ok {
+		if o := e.Unwrap(); o != nil {
+			return o
+		}
+	}
+	return err
 }
