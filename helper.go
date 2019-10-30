@@ -179,6 +179,13 @@ func ErrNotFoundWithText(msg string) *Error {
 	return NewError(http.StatusNotFound, msg)
 }
 
+func GetDetails(err error) string {
+	if o, ok := err.(DetailError); ok {
+		return o.GetDetails()
+	}
+	return ""
+}
+
 func IsUnauthorizedError(err error) bool {
 	re, ok := err.(HTTPError)
 	return ok && re.HTTPCode() == http.StatusUnauthorized
