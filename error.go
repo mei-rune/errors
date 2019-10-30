@@ -5,11 +5,20 @@ import (
 	"strings"
 )
 
+type DetailError interface {
+	GetDetails() string
+}
+
 type HTTPError interface {
 	error
 
 	HTTPCode() int
 }
+
+var _ DetailError = &Error{}
+var _ HTTPError = &Error{}
+var _ Wrapper = &errwrap{}
+var _ Wrapper = &Error{}
 
 // ValidationError simple struct to store the Message & Key of a validation error
 type ValidationError struct {
@@ -57,6 +66,10 @@ func (err *Error) ErrorCode() int {
 
 func (err *Error) HTTPCode() int {
 	return ToHttpCode(err.Code)
+}
+
+func (err *Error) GetDetails() string {
+	return err.Details
 }
 
 var errMissing = nerrors.New("err is nil")
@@ -114,16 +127,4 @@ func (e errwrap) Error() string {
 
 func (e errwrap) Unwrap() error {
 	return e.err
-}
-
-func Unwrap(err error) error {
-	e, ok := err.(interface {
-		Unwrap() error
-	})
-	if ok {
-		if o := e.Unwrap(); o != nil {
-			return o
-		}
-	}
-	return err
 }
