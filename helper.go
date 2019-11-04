@@ -204,6 +204,7 @@ func ToError(err error, defaultCode ...int) *Error {
 	result := &Error{
 		Code:    errCode,
 		Message: err.Error(),
+		Cause:   err,
 	}
 	if he, ok := err.(HTTPError); ok {
 		result.Code = he.HTTPCode()
