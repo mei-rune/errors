@@ -3,6 +3,7 @@ package errors
 import (
 	nerrors "errors"
 	"strings"
+	"fmt"
 )
 
 type DetailError interface {
@@ -90,6 +91,12 @@ func Wrap(err error, msg string) error {
 	}
 	return errwrap{err: err, msg: msg}
 }
+
+
+func Wrapf(err error, msg string, args ...interface{}) error {
+	return Wrap(err, fmt.Sprintf(msg, args...))
+}
+
 func WrapWithSuffix(err error, msg string) error {
 	if err == nil {
 		panic(errMissing)
