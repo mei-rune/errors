@@ -9,6 +9,7 @@ import "net/http"
 var (
 	ErrTimeout        = NewError(http.StatusGatewayTimeout*1000+1, "timeout")
 	ErrNotFound       = NewError(http.StatusNotFound*1000, "not found")
+	ErrFieldNotExists = NewError(http.StatusNotFound*1000+201, "field isnot found")
 	ErrDisabled       = NewError(http.StatusForbidden*1000+1, "disabled")
 	ErrNotAcceptable  = NewError(http.StatusNotAcceptable*1000+1, "not acceptable")
 	ErrNotImplemented = NewError(http.StatusNotImplemented*1000+1, "not implemented ")

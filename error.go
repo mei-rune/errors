@@ -2,8 +2,8 @@ package errors
 
 import (
 	nerrors "errors"
-	"strings"
 	"fmt"
+	"strings"
 )
 
 type DetailError interface {
@@ -28,12 +28,12 @@ type ValidationError struct {
 }
 
 type Error struct {
-	Code      int                        `json:"code,omitempty"`
-	Message   string                     `json:"message"`
-	Details   string                     `json:"details"`
-	Cause     error                      `json:"-"`
-	Fields    map[string]ValidationError `json:"fields,omitempty"`
-	Internals []Error                    `json:"internals,omitempty"`
+	Code      int                          `json:"code,omitempty"`
+	Message   string                       `json:"message"`
+	Details   string                       `json:"details,omitempty"`
+	Cause     error                        `json:"-"`
+	Fields    map[string][]ValidationError `json:"fields,omitempty"`
+	Internals []Error                      `json:"internals,omitempty"`
 }
 
 func (err *Error) Error() string {
@@ -73,6 +73,14 @@ func (err *Error) GetDetails() string {
 	return err.Details
 }
 
+func (err *Error) WithValidationError(key string, e ValidationError) *Error {
+	if err.Fields == nil {
+		err.Fields = map[string][]ValidationError{}
+	}
+	err.Fields[key] = append(err.Fields[key], e)
+	return err
+}
+
 var errMissing = nerrors.New("err is nil")
 
 func Wrap(err error, msg string) error {
@@ -91,7 +99,6 @@ func Wrap(err error, msg string) error {
 	}
 	return errwrap{err: err, msg: msg}
 }
-
 
 func Wrapf(err error, msg string, args ...interface{}) error {
 	return Wrap(err, fmt.Sprintf(msg, args...))

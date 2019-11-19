@@ -282,3 +282,19 @@ func IsEmptyError(e error) bool {
 
 	return e.Error() == ErrResultEmpty.Error()
 }
+
+func FieldNotExists(field string) error {
+	return NewError(ErrFieldNotExists.ErrorCode(), "field '"+field+"' is not exists").
+		WithValidationError("field", Validation.Required(nil))
+}
+
+func IsFieldNotExists(err error) bool {
+	if he, ok := err.(*Error); ok {
+		return he.ErrorCode() == ErrFieldNotExists.ErrorCode()
+	}
+	return false
+}
+
+func IsRequired(name string) error {
+	return NewError(ErrNotFound.ErrorCode(), "'"+name+"' is required.")
+}
