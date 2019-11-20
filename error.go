@@ -16,7 +16,18 @@ type HTTPError interface {
 	HTTPCode() int
 }
 
+type ErrorCoder interface {
+	ErrorCode() int
+}
+
+//  RuntimeError 一个带 Code 的 error
+type RuntimeError interface {
+	HTTPError
+	ErrorCoder
+}
+
 var _ DetailError = &Error{}
+var _ RuntimeError = &Error{}
 var _ HTTPError = &Error{}
 var _ Wrapper = &errwrap{}
 var _ Wrapper = &Error{}

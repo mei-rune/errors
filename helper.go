@@ -166,6 +166,19 @@ func BadArgument(msg string) *Error {
 }
 
 //  NotFound 创建一个 ErrNotFound
+func NotFound(id interface{}, typ ...string) *Error {
+	if len(typ) == 0 {
+		if id == nil {
+			return ErrNotFound
+		}
+
+		return NewError(ErrNotFound.Code, "record with id is '"+fmt.Sprint(id)+"' isn't found")
+	}
+
+	return NewError(ErrNotFound.Code, "record with type is '"+typ[0]+"' and id is '"+fmt.Sprint(id)+"' isn't found")
+}
+
+//  NotFound 创建一个 ErrNotFound
 func ErrNotFoundWith(typeName string, id interface{}) *Error {
 	return NewError(http.StatusNotFound, "record with type is '"+typeName+"' and id is '"+fmt.Sprint(id)+"' isn't found")
 }
