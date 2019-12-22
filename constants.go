@@ -26,6 +26,7 @@ var (
 	ErrReadResponseFail      = NewError(560011, "network error")
 	ErrUnmarshalResponseFail = NewError(560012, "network error")
 
+	ErrBadArgument  = NewError(http.StatusBadRequest*1000, "bad argument")
 	ArgumentMissing = ErrRequired
 	ArgumentEmpty   = NewError(http.StatusBadRequest*1000+901, "empty")
 )
@@ -35,4 +36,8 @@ func ToHttpCode(code int) int {
 		return code
 	}
 	return code / 1000
+}
+
+func ToHttpStatus(code int) int {
+	return ToHttpCode(code)
 }

@@ -12,6 +12,14 @@ func NewError(code int, msg string) *Error {
 	return &Error{Code: code, Message: msg}
 }
 
+func NewApplicationError(code int, msg string) RuntimeError {
+	return &Error{Code: code, Message: msg}
+}
+
+func NewRuntimeError(code int, msg string) RuntimeError {
+	return &Error{Code: code, Message: msg}
+}
+
 func NewHTTPError(code int, msg string) HTTPError {
 	return NewError(code, msg)
 }
@@ -154,14 +162,14 @@ func ErrArray(list ...interface{}) error {
 	return &Error{Code: ErrMultipleError.HTTPCode(), Message: message, Internals: errList}
 }
 
-func ErrBadArgument(paramName string, value interface{}, err ...error) HTTPError {
+func BadArgument(paramName string, value interface{}, err ...error) HTTPError {
 	if len(err) == 0 {
 		return &Error{Code: http.StatusBadRequest, Message: "param '" + paramName + "' is invalid"}
 	}
 	return &Error{Code: http.StatusBadRequest, Message: "param '" + paramName + "' is invalid - " + err[0].Error()}
 }
 
-func BadArgument(msg string) *Error {
+func BadArgumentWithMessage(msg string) *Error {
 	return NewError(http.StatusBadRequest, msg)
 }
 
