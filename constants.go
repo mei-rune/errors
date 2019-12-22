@@ -16,12 +16,12 @@ var (
 	ErrPending        = NewError(570*1000+1, "pending")
 	ErrRequired       = NewError(http.StatusBadRequest*1000+900, "required")
 
-	ErrNetworkError     = NewError(560000, "network error")
-	ErrInterruptError   = NewError(561000, "interrupt error")
-	ErrMultipleError    = NewError(562000, "multiple error")
-	ErrTableIsNotExists = NewError(591000, "table isnot exists")
-	ErrResultEmpty      = NewError(592000, "results is empty")
-	ErrKeyNotFound      = NewError(http.StatusNotFound*1000+501, "key isnot exists")
+	ErrNetworkError   = NewError(560000, "network error")
+	ErrInterruptError = NewError(561000, "interrupt error")
+	ErrMultipleError  = NewError(562000, "multiple error")
+	ErrTableNotExists = NewError(591000, "table isnot exists")
+	ErrResultEmpty    = NewError(592000, "results is empty")
+	ErrKeyNotFound    = NewError(http.StatusNotFound*1000+501, "key isnot exists")
 
 	ErrReadResponseFail      = NewError(560011, "network error")
 	ErrUnmarshalResponseFail = NewError(560012, "network error")
