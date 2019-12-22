@@ -10,18 +10,23 @@ var (
 	ErrTimeout        = NewError(http.StatusGatewayTimeout*1000+1, "timeout")
 	ErrNotFound       = NewError(http.StatusNotFound*1000, "not found")
 	ErrFieldNotExists = NewError(http.StatusNotFound*1000+201, "field isnot found")
+	ErrKeyNotFound    = NewError(http.StatusNotFound*1000+501, "key isnot exists")
+	ErrRecordNotFound = NewError(http.StatusNotFound*1000+202, "record isnot found")
+	ErrValueNotFound  = NewError(http.StatusNotFound*1000+203, "value isnot found")
 	ErrDisabled       = NewError(http.StatusForbidden*1000+1, "disabled")
 	ErrNotAcceptable  = NewError(http.StatusNotAcceptable*1000+1, "not acceptable")
 	ErrNotImplemented = NewError(http.StatusNotImplemented*1000+1, "not implemented ")
 	ErrPending        = NewError(570*1000+1, "pending")
 	ErrRequired       = NewError(http.StatusBadRequest*1000+900, "required")
 
+	ErrTypeError      = NewError(460*1000, "type error")
+	ErrValueNull      = NewError(461*1000, "value is null")
 	ErrNetworkError   = NewError(560000, "network error")
 	ErrInterruptError = NewError(561000, "interrupt error")
 	ErrMultipleError  = NewError(562000, "multiple error")
 	ErrTableNotExists = NewError(591000, "table isnot exists")
 	ErrResultEmpty    = NewError(592000, "results is empty")
-	ErrKeyNotFound    = NewError(http.StatusNotFound*1000+501, "key isnot exists")
+	ErrMultipleValues = NewError(593000, "Multiple values meet the conditions")
 
 	ErrReadResponseFail      = NewError(560011, "network error")
 	ErrUnmarshalResponseFail = NewError(560012, "network error")
@@ -29,6 +34,9 @@ var (
 	ErrBadArgument  = NewError(http.StatusBadRequest*1000, "bad argument")
 	ArgumentMissing = ErrRequired
 	ArgumentEmpty   = NewError(http.StatusBadRequest*1000+901, "empty")
+
+	IDNotExists   = Required("id")
+	BodyNotExists = Required("body")
 )
 
 func ToHttpCode(code int) int {

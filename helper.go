@@ -16,12 +16,20 @@ func NewApplicationError(code int, msg string) RuntimeError {
 	return &Error{Code: code, Message: msg}
 }
 
+func NewInternalError(msg string) *Error {
+	return &Error{Code: http.StatusInternalServerError, Message: msg}
+}
+
 func NewRuntimeError(code int, msg string) RuntimeError {
 	return &Error{Code: code, Message: msg}
 }
 
 func NewHTTPError(code int, msg string) HTTPError {
 	return NewError(code, msg)
+}
+
+func NewTypeError(msg string, err ...error) error {
+	return NewError(ErrTypeError.ErrorCode(), msg)
 }
 
 func Concat(list ...Error) *Error {
@@ -304,13 +312,24 @@ func IsEmptyError(e error) bool {
 	return e.Error() == ErrResultEmpty.Error()
 }
 
+func RecordNotFound(id interface{}) error {
+	return NewApplicationError(ErrRecordNotFound.ErrorCode(), "'"+fmt.Sprint(id)+"' is not found.")
+}
+
+func IsRecordNotFoundNotExists(err error) bool {
+	if he, ok := err.(ErrorCoder); ok {
+		return he.ErrorCode() == ErrRecordNotFound.ErrorCode()
+	}
+	return false
+}
+
 func FieldNotExists(field string) error {
 	return NewError(ErrFieldNotExists.ErrorCode(), "field '"+field+"' is not exists").
 		WithValidationError("field", Validation.Required(nil))
 }
 
 func IsFieldNotExists(err error) bool {
-	if he, ok := err.(*Error); ok {
+	if he, ok := err.(ErrorCoder); ok {
 		return he.ErrorCode() == ErrFieldNotExists.ErrorCode()
 	}
 	return false
@@ -318,4 +337,11 @@ func IsFieldNotExists(err error) bool {
 
 func Required(name string) error {
 	return NewError(ErrNotFound.ErrorCode(), "'"+name+"' is required.")
+}
+
+func IsTypeError(err error) error {
+	if he, ok := err.(HTTPCoder); ok {
+		return he.HTTPCode() == ErrTypeError.HTTPCode()
+	}
+	return false
 }

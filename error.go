@@ -12,7 +12,10 @@ type DetailError interface {
 
 type HTTPError interface {
 	error
+	HTTPCoder
+}
 
+type HTTPCoder interface {
 	HTTPCode() int
 }
 
