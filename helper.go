@@ -308,6 +308,6 @@ func IsFieldNotExists(err error) bool {
 	return false
 }
 
-func IsRequired(name string) error {
+func Required(name string) error {
 	return NewError(ErrNotFound.ErrorCode(), "'"+name+"' is required.")
 }
