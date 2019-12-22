@@ -339,7 +339,7 @@ func Required(name string) error {
 	return NewError(ErrNotFound.ErrorCode(), "'"+name+"' is required.")
 }
 
-func IsTypeError(err error) error {
+func IsTypeError(err error) bool {
 	if he, ok := err.(HTTPCoder); ok {
 		return he.HTTPCode() == ErrTypeError.HTTPCode()
 	}
