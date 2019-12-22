@@ -12,7 +12,7 @@ func NewError(code int, msg string) *Error {
 	return &Error{Code: code, Message: msg}
 }
 
-func NewApplicationError(code int, msg string) RuntimeError {
+func NewApplicationError(code int, msg string) *Error {
 	return &Error{Code: code, Message: msg}
 }
 
@@ -28,7 +28,7 @@ func NewHTTPError(code int, msg string) HTTPError {
 	return NewError(code, msg)
 }
 
-func NewTypeError(msg string, err ...error) error {
+func NewTypeError(msg string, err ...error) *Error {
 	return NewError(ErrTypeError.ErrorCode(), msg)
 }
 
