@@ -33,7 +33,7 @@ func NewTypeError(msg string, err ...error) *Error {
 }
 
 func Concat(list ...Error) *Error {
-	return &Error{Code: ErrMultipleError.HTTPCode(), Internals: list}
+	return &Error{Code: ErrMultipleError.ErrorCode(), Internals: list}
 }
 
 func ErrArray(list ...interface{}) error {
@@ -167,18 +167,18 @@ func ErrArray(list ...interface{}) error {
 	if len(errList) == 1 {
 		return &errList[0]
 	}
-	return &Error{Code: ErrMultipleError.HTTPCode(), Message: message, Internals: errList}
+	return &Error{Code: ErrMultipleError.ErrorCode(), Message: message, Internals: errList}
 }
 
 func BadArgument(paramName string, value interface{}, err ...error) HTTPError {
 	if len(err) == 0 {
-		return &Error{Code: http.StatusBadRequest, Message: "param '" + paramName + "' is invalid"}
+		return &Error{Code: ErrBadArgument.ErrorCode(), Message: "param '" + paramName + "' is invalid"}
 	}
-	return &Error{Code: http.StatusBadRequest, Message: "param '" + paramName + "' is invalid - " + err[0].Error()}
+	return &Error{Code: ErrBadArgument.ErrorCode(), Message: "param '" + paramName + "' is invalid - " + err[0].Error()}
 }
 
 func BadArgumentWithMessage(msg string) *Error {
-	return NewError(http.StatusBadRequest, msg)
+	return NewError(ErrBadArgument.ErrorCode(), msg)
 }
 
 //  NotFound 创建一个 ErrNotFound
@@ -196,16 +196,16 @@ func NotFound(id interface{}, typ ...string) *Error {
 
 //  NotFound 创建一个 ErrNotFound
 func ErrNotFoundWith(typeName string, id interface{}) *Error {
-	return NewError(http.StatusNotFound, "record with type is '"+typeName+"' and id is '"+fmt.Sprint(id)+"' isn't found")
+	return NewError(ErrNotFound.Code, "record with type is '"+typeName+"' and id is '"+fmt.Sprint(id)+"' isn't found")
 }
 
 //  NotFound 创建一个 ErrNotFound
 func ErrNotFoundWithText(msg string) *Error {
 	if msg == "" {
-		return NewError(http.StatusNotFound, "not found")
+		return NewError(ErrNotFound.Code, "not found")
 	}
 
-	return NewError(http.StatusNotFound, msg)
+	return NewError(ErrNotFound.Code, msg)
 }
 
 func GetDetails(err error) string {
@@ -235,10 +235,12 @@ func ToError(err error, defaultCode ...int) *Error {
 		Message: err.Error(),
 		Cause:   err,
 	}
-	if he, ok := err.(HTTPError); ok {
+	if ec, ok := err.(ErrorCoder); ok {
+		result.Code = ec.ErrorCode()
+	} else if he, ok := err.(HTTPError); ok {
 		result.Code = he.HTTPCode()
 	} else if err == sql.ErrNoRows {
-		result.Code = http.StatusNotFound
+		result.Code = ErrNotFound.Code
 	}
 
 	for err != nil {
