@@ -115,7 +115,3 @@ func ReBuildFromError(e error, code int) *ErrorBuilder {
 func BuildApplicationErrorFromError(e error, code int) *Error {
 	return ToError(e, code)
 }
-
-func ToApplicationError(err error, defaultCode ...int) *Error {
-	return ToError(err, defaultCode...)
-}

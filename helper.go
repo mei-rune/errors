@@ -208,6 +208,10 @@ func ErrNotFoundWithText(msg string) *Error {
 	return NewError(ErrNotFound.Code, msg)
 }
 
+func RecordNotFound(id interface{}) error {
+	return NewError(ErrRecordNotFound.ErrorCode(), "'"+fmt.Sprint(id)+"' is not found.")
+}
+
 func GetDetails(err error) string {
 	if o, ok := err.(DetailError); ok {
 		return o.GetDetails()
@@ -312,10 +316,6 @@ func IsEmptyError(e error) bool {
 	}
 
 	return e.Error() == ErrResultEmpty.Error()
-}
-
-func RecordNotFound(id interface{}) error {
-	return NewApplicationError(ErrRecordNotFound.ErrorCode(), "'"+fmt.Sprint(id)+"' is not found.")
 }
 
 func IsRecordNotFoundNotExists(err error) bool {

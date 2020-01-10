@@ -1,8 +1,10 @@
 package errors
 
 import (
+	"database/sql"
 	nerrors "errors"
 	"fmt"
+	"net/http"
 	"strings"
 )
 
@@ -96,6 +98,32 @@ func (err *Error) WithValidationError(key string, e ValidationError) *Error {
 }
 
 var errMissing = nerrors.New("err is nil")
+
+//  RuntimeWrap 为 error 增加上下文信息
+func RuntimeWrap(e error, s string, args ...interface{}) RuntimeError {
+	if "" == s {
+		return ToRuntimeError(e)
+	}
+
+	msg := fmt.Sprintf(s, args...) + ": " + e.Error()
+	if re, ok := e.(RuntimeError); ok {
+		return &ApplicationError{Cause: e, Code: re.ErrorCode(), Message: msg}
+	}
+	if re, ok := e.(interface {
+		ErrorCode() int
+	}); ok {
+		return &ApplicationError{Cause: e, Code: re.ErrorCode(), Message: msg}
+	}
+	if re, ok := e.(HTTPError); ok {
+		return &ApplicationError{Cause: e, Code: re.HTTPCode(), Message: msg}
+	}
+
+	if e == sql.ErrNoRows {
+		return &ApplicationError{Cause: e, Code: http.StatusNotFound, Message: msg}
+	}
+
+	return &ApplicationError{Cause: e, Code: http.StatusInternalServerError, Message: msg}
+}
 
 func Wrap(err error, msg string) error {
 	if err == nil {

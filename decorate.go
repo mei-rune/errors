@@ -5,6 +5,8 @@ import (
 	"net/http"
 )
 
+type ApplicationError = Error
+
 func WithHTTPCode(err error, httpCode int) HTTPError {
 	if err == nil {
 		panic(nerrors.New("err is nil"))
@@ -22,4 +24,16 @@ func WithTitle(err error, title string) error {
 	e.Details = e.Message
 	e.Message = title
 	return e
+}
+
+func ToApplicationError(err error, defaultCode ...int) *Error {
+	return ToError(err, defaultCode...)
+}
+
+// ToRuntimeError 转换成 RuntimeError
+func ToRuntimeError(e error, code ...int) RuntimeError {
+	if re, ok := e.(RuntimeError); ok {
+		return re
+	}
+	return ToError(e, code...)
 }
