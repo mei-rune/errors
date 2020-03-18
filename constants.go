@@ -27,16 +27,19 @@ var (
 	ErrTableNotExists = NewError(591000, "table isnot exists")
 	ErrResultEmpty    = NewError(592000, "results is empty")
 	ErrMultipleValues = NewError(593000, "Multiple values meet the conditions")
+	ErrIDNotExists    = Required("id")
+	ErrBodyNotExists  = Required("body")
+	ErrBodyEmpty      = NewError(594000, "results is empty")
 
 	ErrReadResponseFail      = NewError(560011, "network error")
 	ErrUnmarshalResponseFail = NewError(560012, "network error")
 
-	ErrBadArgument  = NewError(http.StatusBadRequest*1000, "bad argument")
-	ArgumentMissing = ErrRequired
-	ArgumentEmpty   = NewError(http.StatusBadRequest*1000+901, "empty")
+	ErrBadArgument     = NewError(http.StatusBadRequest*1000, "bad argument")
+	ErrArgumentMissing = ErrRequired
+	ErrArgumentEmpty   = NewError(http.StatusBadRequest*1000+901, "empty")
 
-	IDNotExists   = Required("id")
-	BodyNotExists = Required("body")
+	ArgumentMissing = ErrArgumentMissing
+	ArgumentEmpty   = ErrArgumentEmpty
 )
 
 func ToHttpCode(code int) int {
