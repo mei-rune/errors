@@ -18,6 +18,7 @@ var (
 	ErrNotImplemented = NewError(http.StatusNotImplemented*1000+1, "not implemented ")
 	ErrPending        = NewError(570*1000+1, "pending")
 	ErrRequired       = NewError(http.StatusBadRequest*1000+900, "required")
+	ErrPermission     = NewError(http.StatusUnauthorized*1000+101, "permission denied")
 
 	ErrTypeError      = NewError(460*1000, "type error")
 	ErrValueNull      = NewError(461*1000, "value is null")
