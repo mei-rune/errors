@@ -38,6 +38,7 @@ var (
 	ErrBadArgument     = NewError(http.StatusBadRequest*1000, "bad argument")
 	ErrArgumentMissing = ErrRequired
 	ErrArgumentEmpty   = NewError(http.StatusBadRequest*1000+901, "empty")
+	ErrValidationError = NewError(http.StatusBadRequest*1000+902, "bad argument")
 
 	ArgumentMissing = ErrArgumentMissing
 	ArgumentEmpty   = ErrArgumentEmpty

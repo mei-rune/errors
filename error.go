@@ -44,12 +44,12 @@ type ValidationError struct {
 }
 
 type Error struct {
-	Code      int                          `json:"code,omitempty"`
-	Message   string                       `json:"message"`
-	Details   string                       `json:"details,omitempty"`
-	Cause     error                        `json:"-"`
-	Fields    map[string][]ValidationError `json:"fields,omitempty"`
-	Internals []Error                      `json:"internals,omitempty"`
+	Code      int                 `json:"code,omitempty"`
+	Message   string              `json:"message"`
+	Details   string              `json:"details,omitempty"`
+	Cause     error               `json:"-"`
+	Fields    map[string][]string `json:"fields,omitempty"`
+	Internals []Error             `json:"internals,omitempty"`
 }
 
 func (err *Error) Error() string {
@@ -89,9 +89,9 @@ func (err *Error) GetDetails() string {
 	return err.Details
 }
 
-func (err *Error) WithValidationError(key string, e ValidationError) *Error {
+func (err *Error) WithValidationError(key string, e string) *Error {
 	if err.Fields == nil {
-		err.Fields = map[string][]ValidationError{}
+		err.Fields = map[string][]string{}
 	}
 	err.Fields[key] = append(err.Fields[key], e)
 	return err

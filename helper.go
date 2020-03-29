@@ -32,6 +32,10 @@ func NewTypeError(msg string, err ...error) *Error {
 	return NewError(ErrTypeError.ErrorCode(), msg)
 }
 
+func NewValidationError(message string) *Error {
+	return &Error{Code: ErrValidationError.ErrorCode(), Message: message}
+}
+
 func Concat(list ...Error) *Error {
 	return &Error{Code: ErrMultipleError.ErrorCode(), Internals: list}
 }
@@ -327,7 +331,7 @@ func IsRecordNotFoundNotExists(err error) bool {
 
 func FieldNotExists(field string) error {
 	return NewError(ErrFieldNotExists.ErrorCode(), "field '"+field+"' is not exists").
-		WithValidationError("field", Validation.Required(nil))
+		WithValidationError("field", "Reqired")
 }
 
 func IsFieldNotExists(err error) bool {
@@ -344,6 +348,13 @@ func Required(name string) error {
 func IsTypeError(err error) bool {
 	if he, ok := err.(HTTPCoder); ok {
 		return he.HTTPCode() == ErrTypeError.HTTPCode()
+	}
+	return false
+}
+
+func IsValidationError(err error) bool {
+	if he, ok := err.(HTTPCoder); ok {
+		return he.HTTPCode() == ErrValidationError.HTTPCode()
 	}
 	return false
 }

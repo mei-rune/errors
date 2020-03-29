@@ -7,7 +7,7 @@ import (
 type ErrorBuilder struct {
 	code      int
 	message   string
-	fields    map[string][]ValidationError
+	fields    map[string][]string
 	internals []Error
 }
 
@@ -35,25 +35,25 @@ func (err *ErrorBuilder) WithInternalErrors(internals []*Error) *ErrorBuilder {
 
 func (err *ErrorBuilder) WithField(nm string, v interface{}) *ErrorBuilder {
 	if nil == err.fields {
-		err.fields = map[string][]ValidationError{}
+		err.fields = map[string][]string{}
 	}
-	err.fields[nm] = append(err.fields[nm], ValidationError{Message: fmt.Sprint(v)})
+	err.fields[nm] = append(err.fields[nm], fmt.Sprint(v))
 	return err
 }
 
-func (err *ErrorBuilder) Fields() map[string][]ValidationError {
+func (err *ErrorBuilder) Fields() map[string][]string {
 	return err.fields
 }
 
-func (err *ErrorBuilder) FieldsWithDefault() map[string][]ValidationError {
+func (err *ErrorBuilder) FieldsWithDefault() map[string][]string {
 	if nil == err.fields {
-		err.fields = map[string][]ValidationError{}
+		err.fields = map[string][]string{}
 	}
 	return err.fields
 }
 
 func (err *ErrorBuilder) Build() *Error {
-	var fields map[string][]ValidationError
+	var fields map[string][]string
 	var internals []Error
 	if len(err.fields) > 0 {
 		fields = err.fields
@@ -79,11 +79,11 @@ func Build(code int, msg string) *ErrorBuilder {
 }
 
 func ReBuildFromRuntimeError(e RuntimeError) *ErrorBuilder {
-	var fields map[string][]ValidationError
+	var fields map[string][]string
 	var internals []Error
 	if err, ok := e.(*Error); ok {
 		if len(err.Fields) > 0 {
-			fields = map[string][]ValidationError{}
+			fields = map[string][]string{}
 			for k, v := range err.Fields {
 				fields[k] = v
 			}
