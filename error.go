@@ -130,8 +130,9 @@ func Wrap(err error, msg string) error {
 		panic(errMissing)
 	}
 	if he, ok := err.(*Error); ok {
-		he.Message = msg + ": " + he.Message
-		return he
+		newErr := *he
+		newErr.Message = msg + ": " + he.Message
+		return &newErr
 	}
 	if he, ok := err.(HTTPError); ok {
 		return &Error{
@@ -150,10 +151,10 @@ func WrapWithSuffix(err error, msg string) error {
 	if err == nil {
 		panic(errMissing)
 	}
-
 	if he, ok := err.(*Error); ok {
-		he.Message = he.Message + ": " + msg
-		return he
+		newErr := *he
+		newErr.Message = he.Message + ":" + msg
+		return &newErr
 	}
 	if he, ok := err.(HTTPError); ok {
 		return &Error{
