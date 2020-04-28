@@ -48,7 +48,7 @@ type Error struct {
 	Message   string              `json:"message"`
 	Details   string              `json:"details,omitempty"`
 	Cause     error               `json:"-"`
-	Fields    map[string][]string `json:"fields,omitempty"`
+	Fields    map[string][]string `json:"data,omitempty"`
 	Internals []Error             `json:"internals,omitempty"`
 }
 
