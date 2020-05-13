@@ -132,12 +132,14 @@ func Wrap(err error, msg string) error {
 	if he, ok := err.(*Error); ok {
 		newErr := *he
 		newErr.Message = msg + ": " + he.Message
+		newErr.Cause = err
 		return &newErr
 	}
 	if he, ok := err.(HTTPError); ok {
 		return &Error{
 			Code:    he.HTTPCode(),
 			Message: msg + ": " + he.Error(),
+			Cause:   err,
 		}
 	}
 	return errwrap{err: err, msg: msg}
@@ -154,12 +156,14 @@ func WrapWithSuffix(err error, msg string) error {
 	if he, ok := err.(*Error); ok {
 		newErr := *he
 		newErr.Message = he.Message + ":" + msg
+		newErr.Cause = err
 		return &newErr
 	}
 	if he, ok := err.(HTTPError); ok {
 		return &Error{
 			Code:    he.HTTPCode(),
 			Message: he.Error() + ": " + msg,
+			Cause:   err,
 		}
 	}
 	return errwrap{err: err, msg: msg, isSuffix: true}
