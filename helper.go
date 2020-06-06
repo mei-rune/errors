@@ -174,6 +174,13 @@ func ErrArray(list ...interface{}) error {
 	return &Error{Code: ErrMultipleError.ErrorCode(), Message: message, Internals: errList}
 }
 
+func NewArgumentMissing(paramName string, err ...error) HTTPError {
+	if len(err) == 0 {
+		return &Error{Code: ErrBadArgument.ErrorCode(), Message: "param '" + paramName + "' is missing"}
+	}
+	return &Error{Code: ErrBadArgument.ErrorCode(), Message: "param '" + paramName + "' is missing"}
+}
+
 func BadArgument(paramName string, value interface{}, err ...error) HTTPError {
 	if len(err) == 0 {
 		return &Error{Code: ErrBadArgument.ErrorCode(), Message: "param '" + paramName + "' is invalid"}
