@@ -365,3 +365,10 @@ func IsValidationError(err error) bool {
 	}
 	return false
 }
+
+func IsNoContent(err error) bool {
+	if he, ok := err.(HTTPCoder); ok {
+		return he.HTTPCode() == http.StatusNoContent
+	}
+	return false
+}
