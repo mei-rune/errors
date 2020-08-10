@@ -188,8 +188,12 @@ func BadArgument(paramName string, value interface{}, err ...error) HTTPError {
 	return &Error{Code: ErrBadArgument.ErrorCode(), Message: "param '" + paramName + "' is invalid - " + err[0].Error()}
 }
 
-func BadArgumentWithMessage(msg string) *Error {
-	return NewError(ErrBadArgument.ErrorCode(), msg)
+func BadArgumentWithMessage(msg string, err ...error) *Error {
+	e := NewError(ErrBadArgument.ErrorCode(), msg)
+	if len(err) > 0 {
+		e.Cause = err[0]
+	}
+	return e
 }
 
 //  NotFound 创建一个 ErrNotFound
