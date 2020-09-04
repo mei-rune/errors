@@ -1,6 +1,8 @@
 package errors
 
-import "net/http"
+import (
+	"net/http"
+)
 
 //import (
 //	"net/http"
@@ -44,6 +46,8 @@ var (
 
 	ArgumentMissing = ErrArgumentMissing
 	ArgumentEmpty   = ErrArgumentEmpty
+
+	ErrStopped = New("stopped")
 )
 
 func ToHttpCode(code int) int {

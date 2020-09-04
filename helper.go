@@ -376,3 +376,7 @@ func IsNoContent(err error) bool {
 	}
 	return false
 }
+
+func IsStopped(e error) bool {
+	return e == ErrStopped
+}
