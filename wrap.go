@@ -5,7 +5,7 @@
 package errors
 
 import (
-	"reflect"
+	emperrors "emperror.dev/errors"
 )
 
 // An Wrapper provides context around another error.
@@ -28,11 +28,7 @@ type noWrapper struct {
 // Unwrap returns the next error in err's chain.
 // If there is no next error, Unwrap returns nil.
 func Unwrap(err error) error {
-	u, ok := err.(Wrapper)
-	if !ok {
-		return nil
-	}
-	return u.Unwrap()
+	return emperrors.Unwrap(err)
 }
 
 // Is returns true if any error in err's chain matches target.
@@ -40,23 +36,7 @@ func Unwrap(err error) error {
 // An error is considered to match a target if it is equal to that target or if
 // it implements an Is method such that Is(target) returns true.
 func Is(err, target error) bool {
-	if target == nil {
-		return err == target
-	}
-	for {
-		if err == target {
-			return true
-		}
-		if x, ok := err.(interface{ Is(error) bool }); ok && x.Is(target) {
-			return true
-		}
-		// TODO: consider supporing target.Is(err). This would allow
-		// user-definable predicates, but also may allow for coping with sloppy
-		// APIs, thereby making it easier to get away with them.
-		if err = Unwrap(err); err == nil {
-			return false
-		}
-	}
+	return emperrors.Is(err, target)
 }
 
 // As finds the first error in err's chain that matches a type to which target
@@ -67,24 +47,5 @@ func Is(err, target error) bool {
 // The As method should set the target to its value and report success if err
 // matches the type to which target points and report success.
 func As(err error, target interface{}) bool {
-	if target == nil {
-		panic("errors: target cannot be nil")
-	}
-	typ := reflect.TypeOf(target)
-	if typ.Kind() != reflect.Ptr {
-		panic("errors: target must be a pointer")
-	}
-	targetType := typ.Elem()
-	for {
-		if reflect.TypeOf(err) == targetType {
-			reflect.ValueOf(target).Elem().Set(reflect.ValueOf(err))
-			return true
-		}
-		if x, ok := err.(interface{ As(interface{}) bool }); ok && x.As(target) {
-			return true
-		}
-		if err = Unwrap(err); err == nil {
-			return false
-		}
-	}
+	return emperrors.As(err, target)
 }

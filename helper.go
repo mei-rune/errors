@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"strings"
 	"unicode"
+
+	"emperror.dev/emperror"
 )
 
 func NewError(code int, msg string) *Error {
@@ -379,4 +381,28 @@ func IsNoContent(err error) bool {
 
 func IsStopped(e error) bool {
 	return e == ErrStopped
+}
+
+type ErrorHandler = emperror.ErrorHandler
+type ErrorHandlerContext = emperror.ErrorHandlerContext
+
+// Panic panics if the passed error is not nil.
+// If the error does not contain any stack trace, the function attaches one, starting from the frame of the
+// "Panic" function call.
+//
+// This function is useful with HandleRecover when panic is used as a flow control tool to stop the application.
+func Panic(err error) {
+	emperror.Panic(err)
+}
+
+// Recover accepts a recovered panic (if any) and converts it to an error (if necessary).
+func Recover(r interface{}) error {
+	return emperror.Recover(r)
+}
+
+// HandleRecover recovers from a panic and handles the error.
+//
+//		defer emperror.HandleRecover(errorHandler)
+func HandleRecover(handler ErrorHandler) {
+	emperror.HandleRecover(handler)
 }
