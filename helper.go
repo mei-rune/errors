@@ -379,6 +379,11 @@ func IsNoContent(err error) bool {
 	return false
 }
 
+func IsConnectError(err error) bool {
+	return strings.Contains(err.Error(), "connectex:") ||
+		strings.Contains(err.Error(), "connect:")
+}
+
 func IsStopped(e error) bool {
 	return e == ErrStopped
 }
