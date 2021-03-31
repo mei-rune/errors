@@ -37,3 +37,29 @@ func ToRuntimeError(e error, code ...int) RuntimeError {
 	}
 	return ToError(e, code...)
 }
+
+type WithSQL struct {
+	Err    error
+	SqlStr string
+	Args   []interface{}
+}
+
+func (w *WithSQL) Error() string { return w.Err.Error() }
+
+func (w *WithSQL) Cause() error { return w.Err }
+
+// Unwrap provides compatibility for Go 1.13 error chains.
+func (w *WithSQL) Unwrap() error { return w.Err }
+
+func WrapSQLError(err error, sqlStr string, args []interface{}) error {
+	if sqlStr == "" {
+		return err
+	}
+
+	return &WithSQL{Err: err, SqlStr: sqlStr, Args: args}
+}
+
+func ToSQLError(err error) *WithSQL {
+	e, _ := err.(*WithSQL)
+	return e
+}
