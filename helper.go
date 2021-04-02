@@ -328,7 +328,7 @@ func IsTimeoutError(e error) bool {
 
 // IsNotFound 是不是一个未找到错误
 func IsNotFound(e error) bool {
-	if e == sql.ErrNoRows {
+	if Is(e, sql.ErrNoRows) {
 		return true
 	}
 	if he, ok := e.(HTTPError); ok {
