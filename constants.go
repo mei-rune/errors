@@ -30,7 +30,7 @@ var (
 	ErrMultipleError  = NewError(562000, "multiple error")
 	ErrTableNotExists = NewError(591000, "table isnot exists")
 	ErrResultEmpty    = NewError(592000, "results is empty")
-	ErrMultipleValues = NewError(593000, "Multiple values meet the conditions")
+	ErrMultipleValues = NewError(http.StatusMultipleChoices * 1000 + 000, "Multiple values meet the conditions")
 	ErrIDNotExists    = Required("id")
 	ErrBodyNotExists  = Required("body")
 	ErrBodyEmpty      = NewError(594000, "results is empty")

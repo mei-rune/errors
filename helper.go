@@ -311,6 +311,12 @@ func IsPendingError(e error) bool {
 	}
 	return e == ErrPending
 }
+func IsMultipleChoices(e error) bool {
+	if re, ok := e.(HTTPError); ok {
+		return re.HTTPCode() == ErrMultipleValues.HTTPCode()
+	}
+	return e == ErrMultipleValues
+}
 
 // IsTimeoutError 是不是一个超时错误
 func IsTimeoutError(e error) bool {
