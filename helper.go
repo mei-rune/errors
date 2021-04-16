@@ -313,9 +313,9 @@ func IsPendingError(e error) bool {
 }
 func IsMultipleChoices(e error) bool {
 	if re, ok := e.(HTTPError); ok {
-		return re.HTTPCode() == ErrMultipleValues.HTTPCode()
+		return re.HTTPCode() == ErrMultipleChoices.HTTPCode()
 	}
-	return e == ErrMultipleValues
+	return e == ErrMultipleChoices
 }
 
 // IsTimeoutError 是不是一个超时错误

@@ -47,6 +47,7 @@ var (
 
 	ArgumentMissing = ErrArgumentMissing
 	ArgumentEmpty   = ErrArgumentEmpty
+	ErrMultipleChoices = ErrMultipleValues
 
 	ErrStopped = New("stopped")
 )
