@@ -60,6 +60,9 @@ func WrapSQLError(err error, sqlStr string, args []interface{}) error {
 }
 
 func ToSQLError(err error) *WithSQL {
+	if err == nil {
+		return nil
+	}
 	e, _ := err.(*WithSQL)
 	return e
 }
