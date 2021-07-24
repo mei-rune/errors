@@ -288,6 +288,14 @@ func ToError(err error, defaultCode ...int) *Error {
 	return result
 }
 
+
+func ToErrorIfNotNull(err error, defaultCode ...int) *Error {
+	if err == nil {
+		return nil
+	}
+	return ToError(err, defaultCode...)
+}
+
 func AsHTTPError(err error) (HTTPError, bool) {
 	he, ok := err.(HTTPError)
 	return he, ok
