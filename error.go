@@ -2,9 +2,11 @@ package errors
 
 import (
 	"database/sql"
+	"encoding/json"
 	nerrors "errors"
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 )
 
@@ -188,4 +190,77 @@ func (e errwrap) Error() string {
 
 func (e errwrap) Unwrap() error {
 	return e.err
+}
+
+func ToResponseError(response *http.Response) error {
+	if response.Body == nil {
+		return NewRuntimeError(http.StatusNoContent, "no content")
+	}
+	var values map[string]interface{}
+	decoder := json.NewDecoder(response.Body)
+	decoder.UseNumber()
+	err := decoder.Decode(&values)
+	if err != nil {
+		return Wrap(err, "read error info")
+	}
+
+	var msg string
+	for _, key := range []string{"message", "error", "msg"} {
+		o := values[key]
+		if o == nil {
+			continue
+		}
+		msg, _ = o.(string)
+		if msg != "" {
+			break
+		}
+	}
+	if msg == "" {
+		msg = fmt.Sprintf("%#v", values)
+	}
+
+	e := &Error{
+		Code: response.StatusCode,
+		Message: msg,
+		// Details   string              `json:"details,omitempty"`
+		// Cause     error               `json:"-"`
+		// Fields    map[string][]string `json:"data,omitempty"`
+		// Internals []Error             `json:"internals,omitempty"`
+	}
+	if len(values) > 0 {
+		for key, value := range values {
+			if list, ok := value.([]string); ok {
+				ss := make([]string, len(list))
+				for idx := range list {
+					ss[idx] = fmt.Sprintf("%#v", list[idx])
+				}
+				e.Fields[key] = ss
+			} else {
+				e.Fields[key] = []string{fmt.Sprintf("%#v", value)}
+			}
+		}
+	}
+
+	if v := values["code"]; v != nil {
+		switch value := v.(type) {
+		case json.Number:
+			i, err := strconv.Atoi(value.String())
+			if err == nil {
+				e.Code = i
+			}
+		case int32:
+			e.Code = int(value)
+		case int64:
+			e.Code = int(value)
+		case int:
+			e.Code = value
+		case uint32:
+			e.Code = int(value)
+		case uint64:
+			e.Code = int(value)
+		case uint:
+			e.Code = int(value)
+		}
+	}
+	return e
 }

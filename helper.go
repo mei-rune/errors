@@ -288,7 +288,6 @@ func ToError(err error, defaultCode ...int) *Error {
 	return result
 }
 
-
 func ToErrorIfNotNull(err error, defaultCode ...int) *Error {
 	if err == nil {
 		return nil
