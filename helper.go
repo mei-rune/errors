@@ -52,6 +52,16 @@ func Concat(list ...Error) *Error {
 	return &Error{Code: ErrMultipleError.ErrorCode(), Internals: list}
 }
 
+func ErrorIfNotEmpty(errList []error) error {
+	if len(errList) == 0 {
+		return nil
+	}
+	if len(errList) == 1 {
+		return errList[0]
+	}
+	return ErrArray(errList)
+}
+
 func ErrArray(list ...interface{}) error {
 	var errList []Error
 
