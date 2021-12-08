@@ -34,6 +34,7 @@ var (
 	ErrIDNotExists    = Required("id")
 	ErrBodyNotExists  = Required("body")
 	ErrBodyEmpty      = NewError(594000, "results is empty")
+	ErrAlreadyClosed  = NewError(595000, "already closed")
 
 	ErrReadResponseFail      = NewError(560011, "network error")
 	ErrUnmarshalResponseFail = NewError(560012, "network error")
