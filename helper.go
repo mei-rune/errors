@@ -315,9 +315,11 @@ func HTTPCode(err error, statusCode ...int) int {
 	if len(statusCode) > 0 {
 		code = statusCode[0]
 	}
-	he, ok := err.(HTTPError)
-	if ok {
+	
+	if he, ok := err.(HTTPError); ok {
 		code = he.HTTPCode()
+	} else if err == sql.ErrNoRows {
+		code = http.StatusNotFound
 	}
 	return code
 }
