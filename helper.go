@@ -48,6 +48,19 @@ func Join(err1, err2 error) error {
 	return ErrArray(err1, err2)
 }
 
+func Join3(err1, err2, err3 error) error {
+	if err1 == nil {
+		return Join(err2, err3)
+	}
+	if err2 == nil {
+		return Join(err1, err3)
+	}
+	if err3 == nil {
+		return ErrArray(err1, err2)
+	}
+	return ErrArray(err1, err2, err3)
+}
+
 func Concat(list ...Error) *Error {
 	return &Error{Code: ErrMultipleError.ErrorCode(), Internals: list}
 }
@@ -315,7 +328,7 @@ func HTTPCode(err error, statusCode ...int) int {
 	if len(statusCode) > 0 {
 		code = statusCode[0]
 	}
-	
+
 	if he, ok := err.(HTTPError); ok {
 		code = he.HTTPCode()
 	} else if err == sql.ErrNoRows {
