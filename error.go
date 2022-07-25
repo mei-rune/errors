@@ -3,6 +3,7 @@ package errors
 import (
 	"database/sql"
 	"encoding/json"
+	"io/ioutil"
 	nerrors "errors"
 	"fmt"
 	"net/http"
@@ -195,6 +196,14 @@ func (e errwrap) Unwrap() error {
 func ToResponseError(response *http.Response) error {
 	if response.Body == nil {
 		return NewRuntimeError(http.StatusNoContent, "no content")
+	}
+	contentType := response.Header.Get("Content-Type")
+	if strings.HasPrefix(contentType, "text/plain") {
+		bs, _ := ioutil.ReadAll(response.Body)
+		if len(bs) == 0 {
+			return NewRuntimeError(response.StatusCode, response.Status)
+		}
+			return NewRuntimeError(response.StatusCode, string(bs))
 	}
 	var values map[string]interface{}
 	decoder := json.NewDecoder(response.Body)
