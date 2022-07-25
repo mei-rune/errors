@@ -228,6 +228,9 @@ func ToResponseError(response *http.Response) error {
 		// Internals []Error             `json:"internals,omitempty"`
 	}
 	if len(values) > 0 {
+		if e.Fields == nil {
+			e.Fields = map[string][]string{}
+		}
 		for key, value := range values {
 			if list, ok := value.([]string); ok {
 				ss := make([]string, len(list))
