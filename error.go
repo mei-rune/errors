@@ -3,9 +3,9 @@ package errors
 import (
 	"database/sql"
 	"encoding/json"
-	"io/ioutil"
 	nerrors "errors"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"strconv"
 	"strings"
@@ -28,7 +28,7 @@ type ErrorCoder interface {
 	ErrorCode() int
 }
 
-//  RuntimeError 一个带 Code 的 error
+// RuntimeError 一个带 Code 的 error
 type RuntimeError interface {
 	HTTPError
 	ErrorCoder
@@ -102,7 +102,7 @@ func (err *Error) WithValidationError(key string, e string) *Error {
 
 var errMissing = nerrors.New("err is nil")
 
-//  RuntimeWrap 为 error 增加上下文信息
+// RuntimeWrap 为 error 增加上下文信息
 func RuntimeWrap(e error, s string, args ...interface{}) RuntimeError {
 	if "" == s {
 		return ToRuntimeError(e)
@@ -203,7 +203,7 @@ func ToResponseError(response *http.Response) error {
 		if len(bs) == 0 {
 			return NewRuntimeError(response.StatusCode, response.Status)
 		}
-			return NewRuntimeError(response.StatusCode, string(bs))
+		return NewRuntimeError(response.StatusCode, string(bs))
 	}
 	var values map[string]interface{}
 	decoder := json.NewDecoder(response.Body)
@@ -229,7 +229,7 @@ func ToResponseError(response *http.Response) error {
 	}
 
 	e := &Error{
-		Code: response.StatusCode,
+		Code:    response.StatusCode,
 		Message: msg,
 		// Details   string              `json:"details,omitempty"`
 		// Cause     error               `json:"-"`

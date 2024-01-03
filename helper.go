@@ -231,7 +231,7 @@ func BadArgumentWithMessage(msg string, err ...error) *Error {
 	return e
 }
 
-//  NotFound 创建一个 ErrNotFound
+// NotFound 创建一个 ErrNotFound
 func NotFound(id interface{}, typ ...string) *Error {
 	if len(typ) == 0 {
 		if id == nil {
@@ -244,12 +244,12 @@ func NotFound(id interface{}, typ ...string) *Error {
 	return NewError(ErrNotFound.Code, "record with type is '"+typ[0]+"' and id is '"+fmt.Sprint(id)+"' isn't found")
 }
 
-//  NotFound 创建一个 ErrNotFound
+// NotFound 创建一个 ErrNotFound
 func ErrNotFoundWith(typeName string, id interface{}) *Error {
 	return NewError(ErrNotFound.Code, "record with type is '"+typeName+"' and id is '"+fmt.Sprint(id)+"' isn't found")
 }
 
-//  NotFound 创建一个 ErrNotFound
+// NotFound 创建一个 ErrNotFound
 func ErrNotFoundWithText(msg string) *Error {
 	if msg == "" {
 		return NewError(ErrNotFound.Code, "not found")
@@ -455,7 +455,7 @@ func Recover(r interface{}) error {
 
 // HandleRecover recovers from a panic and handles the error.
 //
-//		defer emperror.HandleRecover(errorHandler)
+//	defer emperror.HandleRecover(errorHandler)
 func HandleRecover(handler ErrorHandler) {
 	emperror.HandleRecover(handler)
 }
