@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strings"
 	"unicode"
+	"runtime/debug"
 
 	"emperror.dev/emperror"
 )
@@ -459,3 +460,37 @@ func Recover(r interface{}) error {
 func HandleRecover(handler ErrorHandler) {
 	emperror.HandleRecover(handler)
 }
+
+
+
+// Recover accepts a recovered panic (if any) and converts it to an error (if necessary).
+func HandlePanic(err *error, context string) {
+	if r := recover(); r != nil {
+		switch x := r.(type) {
+		case string:
+			*err = New(context + ": " + x)
+		case error:
+			*err = Wrap(x, context)
+		default:
+			*err = fmt.Errorf("%s: %v", context, r)
+		}
+
+		stack := debug.Stack()
+		*err = &withStack{
+			err: *err,
+			stack: stack,
+		}
+	}
+}
+
+type withStack struct {
+	err error
+	stack []byte
+}
+
+func (w *withStack) Error() string  {
+  return fmt.Sprintf("%s\r\n%s", w.err, w.stack)
+}
+
+func (w *withStack) Cause() error  { return w.err }
+func (w *withStack) Unwrap() error { return w.err }
