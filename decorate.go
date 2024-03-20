@@ -21,7 +21,11 @@ func WithTitle(err error, title string) error {
 		panic(nerrors.New("err is nil"))
 	}
 	e := ToError(err, http.StatusInternalServerError)
-	e.Details = e.Message
+	if e.Details == "" {
+		e.Details = e.Message
+	} else {
+		e.Details = e.Message + ": " + e.Details
+	}
 	e.Message = title
 	return e
 }
