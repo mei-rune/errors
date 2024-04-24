@@ -112,13 +112,11 @@ func RuntimeWrap(e error, s string, args ...interface{}) RuntimeError {
 	if re, ok := e.(RuntimeError); ok {
 		return &ApplicationError{Cause: e, Code: re.ErrorCode(), Message: msg}
 	}
-	if re, ok := e.(interface {
-		ErrorCode() int
-	}); ok {
-		return &ApplicationError{Cause: e, Code: re.ErrorCode(), Message: msg}
+	if ec, ok := GetErrorCode(e); ok {
+		return &ApplicationError{Cause: e, Code: ec, Message: msg}
 	}
-	if re, ok := e.(HTTPError); ok {
-		return &ApplicationError{Cause: e, Code: re.HTTPCode(), Message: msg}
+	if hc, ok := GetHttpCode(e); ok {
+		return &ApplicationError{Cause: e, Code: hc, Message: msg}
 	}
 
 	if e == sql.ErrNoRows {
@@ -138,10 +136,10 @@ func Wrap(err error, msg string) error {
 		newErr.Cause = err
 		return &newErr
 	}
-	if he, ok := err.(HTTPError); ok {
+	if hc, ok := GetHttpCode(err); ok {
 		return &Error{
-			Code:    he.HTTPCode(),
-			Message: msg + ": " + he.Error(),
+			Code:    hc,
+			Message: msg + ": " + err.Error(),
 			Cause:   err,
 		}
 	}
@@ -162,10 +160,10 @@ func WrapWithSuffix(err error, msg string) error {
 		newErr.Cause = err
 		return &newErr
 	}
-	if he, ok := err.(HTTPError); ok {
+	if hc, ok := GetHttpCode(err); ok {
 		return &Error{
-			Code:    he.HTTPCode(),
-			Message: he.Error() + ": " + msg,
+			Code:    hc,
+			Message: err.Error() + ": " + msg,
 			Cause:   err,
 		}
 	}
@@ -275,4 +273,41 @@ func ToResponseError(response *http.Response) error {
 		}
 	}
 	return e
+}
+
+func GetErrorCode(target error) (int, bool) {
+  if target == nil {
+    return 0, false
+  }
+  wc, ok := target.(ErrorCoder)
+  if ok {
+    return wc.ErrorCode(), true
+  }
+  inner, ok := wc.(Wrapper)
+  if ok {
+    return GetErrorCode(inner.Unwrap())
+  }
+  return 0, false
+}
+
+func GetHttpCode(target error) (int, bool) {
+  if target == nil {
+    return 0, false
+  }
+  hc, ok := target.(HTTPCoder)
+  if ok {
+    return hc.HTTPCode(), true
+  }
+  wc, ok := target.(ErrorCoder)
+  if ok {
+    return ToHttpCode(wc.ErrorCode()), true
+  }
+  inner, ok := wc.(Wrapper)
+  if ok {
+    return GetHttpCode(inner.Unwrap())
+  }
+  if target == sql.ErrNoRows {
+		return http.StatusNotFound, true
+	}
+  return 0, false
 }

@@ -106,6 +106,12 @@ func ReBuildFromError(e error, code int) *ErrorBuilder {
 	if err, ok := e.(RuntimeError); ok {
 		return ReBuildFromRuntimeError(err)
 	}
+	if ec, ok := GetErrorCode(e); ok {
+		return &ErrorBuilder{
+			code:    ec,
+			message: e.Error(),
+		}
+	}
 	return &ErrorBuilder{
 		code:    code,
 		message: e.Error(),

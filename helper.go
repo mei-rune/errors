@@ -271,8 +271,8 @@ func GetDetails(err error) string {
 }
 
 func IsUnauthorizedError(err error) bool {
-	re, ok := err.(HTTPError)
-	return ok && re.HTTPCode() == http.StatusUnauthorized
+	hc, ok := GetHttpCode(err)
+	return ok && hc == http.StatusUnauthorized
 }
 
 func ToError(err error, defaultCode ...int) *Error {
@@ -290,10 +290,10 @@ func ToError(err error, defaultCode ...int) *Error {
 		Message: err.Error(),
 		Cause:   err,
 	}
-	if ec, ok := err.(ErrorCoder); ok {
-		result.Code = ec.ErrorCode()
-	} else if he, ok := err.(HTTPError); ok {
-		result.Code = he.HTTPCode()
+	if ec, ok := GetErrorCode(err); ok {
+		result.Code = ec
+	} else if hc, ok := GetHttpCode(err); ok {
+		result.Code = hc
 	} else if err == sql.ErrNoRows {
 		result.Code = ErrNotFound.Code
 	}
@@ -321,6 +321,14 @@ func ToErrorIfNotNull(err error, defaultCode ...int) *Error {
 
 func AsHTTPError(err error) (HTTPError, bool) {
 	he, ok := err.(HTTPError)
+	if ok {
+		return he, true
+	}
+
+	hc, ok := GetHttpCode(err)
+	if ok {
+		return &Error{Code: hc, Message: err.Error()}, true
+	}
 	return he, ok
 }
 
@@ -330,8 +338,8 @@ func HTTPCode(err error, statusCode ...int) int {
 		code = statusCode[0]
 	}
 
-	if he, ok := err.(HTTPError); ok {
-		code = he.HTTPCode()
+	if hc, ok := GetHttpCode(err); ok {
+		code = hc
 	} else if err == sql.ErrNoRows {
 		code = http.StatusNotFound
 	}
@@ -339,22 +347,22 @@ func HTTPCode(err error, statusCode ...int) int {
 }
 
 func IsPendingError(e error) bool {
-	if re, ok := e.(HTTPError); ok {
-		return re.HTTPCode() == ErrPending.HTTPCode()
+	if hc, ok := GetHttpCode(e); ok {
+		return hc == ErrPending.HTTPCode()
 	}
-	return e == ErrPending
+	return Is(e, ErrPending)
 }
 func IsMultipleChoices(e error) bool {
-	if re, ok := e.(HTTPError); ok {
-		return re.HTTPCode() == ErrMultipleChoices.HTTPCode()
+	if hc, ok := GetHttpCode(e); ok {
+		return hc == ErrMultipleChoices.HTTPCode()
 	}
-	return e == ErrMultipleChoices
+	return Is(e, ErrMultipleChoices)
 }
 
 // IsTimeoutError 是不是一个超时错误
 func IsTimeoutError(e error) bool {
-	if he, ok := e.(HTTPError); ok {
-		return he.HTTPCode() == ErrTimeout.HTTPCode()
+	if hc, ok := GetHttpCode(e); ok {
+		return hc == ErrTimeout.HTTPCode()
 	}
 
 	s := e.Error()
@@ -370,23 +378,23 @@ func IsNotFound(e error) bool {
 	if Is(e, sql.ErrNoRows) {
 		return true
 	}
-	if he, ok := e.(HTTPError); ok {
-		return he.HTTPCode() == http.StatusNotFound
+	if hc, ok := GetHttpCode(e); ok {
+		return hc == http.StatusNotFound
 	}
 	return false
 }
 
 func IsEmptyError(e error) bool {
-	if he, ok := e.(HTTPError); ok {
-		return he.HTTPCode() == ErrResultEmpty.HTTPCode()
+	if hc, ok := GetHttpCode(e); ok {
+		return hc == ErrResultEmpty.HTTPCode()
 	}
 
-	return e.Error() == ErrResultEmpty.Error()
+	return Is(e, ErrResultEmpty)
 }
 
 func IsRecordNotFoundNotExists(err error) bool {
-	if he, ok := err.(ErrorCoder); ok {
-		return he.ErrorCode() == ErrRecordNotFound.ErrorCode()
+	if ec, ok := GetErrorCode(err); ok {
+		return ec == ErrRecordNotFound.ErrorCode()
 	}
 	return false
 }
@@ -397,8 +405,8 @@ func FieldNotExists(field string) error {
 }
 
 func IsFieldNotExists(err error) bool {
-	if he, ok := err.(ErrorCoder); ok {
-		return he.ErrorCode() == ErrFieldNotExists.ErrorCode()
+	if ec, ok := GetErrorCode(err); ok {
+		return ec == ErrFieldNotExists.ErrorCode()
 	}
 	return false
 }
@@ -408,22 +416,22 @@ func Required(name string) error {
 }
 
 func IsTypeError(err error) bool {
-	if he, ok := err.(HTTPCoder); ok {
-		return he.HTTPCode() == ErrTypeError.HTTPCode()
+	if hc, ok := GetHttpCode(err); ok {
+		return hc == ErrTypeError.HTTPCode()
 	}
 	return false
 }
 
 func IsValidationError(err error) bool {
-	if he, ok := err.(HTTPCoder); ok {
-		return he.HTTPCode() == ErrValidationError.HTTPCode()
+	if hc, ok := GetHttpCode(err); ok {
+		return hc == ErrValidationError.HTTPCode()
 	}
 	return false
 }
 
 func IsNoContent(err error) bool {
-	if he, ok := err.(HTTPCoder); ok {
-		return he.HTTPCode() == http.StatusNoContent
+	if hc, ok := GetHttpCode(err); ok {
+		return hc == http.StatusNoContent
 	}
 	return false
 }

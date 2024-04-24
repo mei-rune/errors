@@ -39,6 +39,12 @@ func ToRuntimeError(e error, code ...int) RuntimeError {
 	if re, ok := e.(RuntimeError); ok {
 		return re
 	}
+	if ec, ok := GetErrorCode(e); ok {
+		return &Error{
+			Code:    ec,
+			Message: e.Error(),
+		}
+	}
 	return ToError(e, code...)
 }
 
