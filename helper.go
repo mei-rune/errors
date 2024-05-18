@@ -381,7 +381,7 @@ func IsEmptyError(e error) bool {
 		return he.HTTPCode() == ErrResultEmpty.HTTPCode()
 	}
 
-	return e.Error() == ErrResultEmpty.Error()
+	return Is(e, ErrResultEmpty)
 }
 
 func IsRecordNotFoundNotExists(err error) bool {
