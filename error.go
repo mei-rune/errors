@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	nerrors "errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -143,7 +144,28 @@ func Wrap(err error, msg string) error {
 			Cause:   err,
 		}
 	}
-	return errwrap{err: err, msg: msg}
+	return errwrap{err: err, msg: msg, mode: modePrefix}
+}
+
+
+func WrapWithMessage(err error, msg string) error {
+	if err == nil {
+		panic(errMissing)
+	}
+	if he, ok := err.(*Error); ok {
+		newErr := *he
+		newErr.Message = msg
+		newErr.Cause = err
+		return &newErr
+	}
+	if hc, ok := GetHttpCode(err); ok {
+		return &Error{
+			Code:    hc,
+			Message: msg,
+			Cause:   err,
+		}
+	}
+	return errwrap{err: err, msg: msg, mode: modeTitle}
 }
 
 func Wrapf(err error, msg string, args ...interface{}) error {
@@ -167,7 +189,7 @@ func WrapWithSuffix(err error, msg string) error {
 			Cause:   err,
 		}
 	}
-	return errwrap{err: err, msg: msg, isSuffix: true}
+	return errwrap{err: err, msg: msg, mode: modeSuffix}
 }
 
 func New(msg string) error {
@@ -177,14 +199,23 @@ func New(msg string) error {
 type errwrap struct {
 	err      error
 	msg      string
-	isSuffix bool
+	mode int
 }
 
+const (
+	modePrefix = 0
+	modeSuffix = 1
+	modeTitle = 2
+)
+
 func (e errwrap) Error() string {
-	if e.isSuffix {
+	if e.mode == modeSuffix {
 		return e.err.Error() + ": " + e.msg
 	}
-	return e.msg + ": " + e.err.Error()
+	if e.mode == modePrefix {
+		return e.msg + ": " + e.err.Error()
+	}
+	return e.msg
 }
 
 func (e errwrap) Unwrap() error {
@@ -210,6 +241,7 @@ func ToResponseError(response *http.Response) error {
 	if err != nil {
 		return Wrap(err, "read error info")
 	}
+	defer io.Copy(io.Discard, response.Body)
 
 	var msg string
 	for _, key := range []string{"message", "error", "msg"} {
