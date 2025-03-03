@@ -36,8 +36,8 @@ var (
 	ErrBodyEmpty      = NewError(594000, "results is empty")
 	ErrAlreadyClosed  = NewError(595000, "already closed")
 
-	ErrReadResponseFail      = NewError(560011, "network error")
-	ErrUnmarshalResponseFail = NewError(560012, "network error")
+	ErrReadResponseFail      = NewError(560011, "read response error")
+	ErrUnmarshalResponseFail = NewError(560012, "unmarshal response error")
 
 	ErrBadArgument     = NewError(http.StatusBadRequest*1000, "bad argument")
 	ErrArgumentMissing = ErrRequired
