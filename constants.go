@@ -35,6 +35,7 @@ var (
 	ErrBodyNotExists  = Required("body")
 	ErrBodyEmpty      = NewError(594000, "results is empty")
 	ErrAlreadyClosed  = NewError(595000, "already closed")
+	ErrAlreadyStart   = NewError(596000, "already start")
 
 	ErrReadResponseFail      = NewError(560011, "read response error")
 	ErrUnmarshalResponseFail = NewError(560012, "unmarshal response error")
